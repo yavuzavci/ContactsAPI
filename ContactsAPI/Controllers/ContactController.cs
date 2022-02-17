@@ -9,123 +9,65 @@ namespace ContactsAPI.Controllers
     {
         private readonly ILogger<ContactController> _logger;
 
-        private static List<Contact> contacts = new List<Contact>
-        {
-            new Contact
-            {
-                Id = 1,
-                Name = "Yavuz",
-                Surname = "Avci",
-                Company = "",
-                Phone = "+903120751223",
-                Email = "yavuzavci@gmail.com",
-                Country = "Turkey"
-            },
-            new Contact
-            {
-                Id = 2,
-                Name = "John",
-                Surname = "Doe",
-                Company = "Microsoft",
-                Phone = "+18004444444",
-                Email = "john@doe.com",
-                Country = "United States"
-            },
-            new Contact
-            {
-                Id = 3,
-                Name = "Jane",
-                Surname = "Doe",
-                Company = "Facebook",
-                Phone = "+18004444445",
-                Email = "jane.doe.test@facebook.com",
-                Country = "United States"
-            },
-            new Contact
-            {
-                Id = 4,
-                Name = "Noah",
-                Surname = "Davis",
-                Company = "Google",
-                Phone = "+18004444446",
-                Email = "dav_noah_test123@google.com",
-                Country = "United States"
-            },
-            new Contact
-            {
-                Id = 5,
-                Name = "Oliver",
-                Surname = "Schmidt",
-                Company = "Siemens GmbH",   
-                Phone = "+49152901820",
-                Email = "oli_test123@siemens.de",
-                Country = "Germany"
-            },
-            new Contact
-            {
-                Id = 6,
-                Name = "Hanna",
-                Surname = "Becker",
-                Company = "Facebook",
-                Phone = "+49152901821",
-                Email = "hanbecker85_test@facebook.com",
-                Country = "Germany"
-            }
-        };
+        private readonly DataContext _context;
 
-        public ContactController(ILogger<ContactController> logger)
+        public ContactController(DataContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public async Task<ActionResult<List<Contact>>> Get()
         {
-            return Ok(contacts);
+            return Ok(await _context.Contacts.ToListAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Contact>> Get(int id)
         {
-            var contact = contacts.Find(c => c.Id == id);
+            var contact = await _context.Contacts.FindAsync(id);
             if (contact == null)
                 return BadRequest("Contact not found.");
             return Ok(contact);
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddContact(Contact contact)
+        public async Task<ActionResult<List<Contact>>> AddContact(Contact contact)
         {
-            contacts.Add(contact);
-            return Ok(contacts);
+            _context.Contacts.Add(contact);
+            await _context.SaveChangesAsync();
+            return Ok(await _context.Contacts.ToListAsync());
         }
 
         [HttpPut]
         public async Task<ActionResult> UpdateContact(Contact request)
         {
-            var contact = contacts.Find(c => c.Id == request.Id);
-            if (contact == null)
+            var dbContact = await _context.Contacts.FindAsync(request.Id);
+            if (dbContact == null)
                 return BadRequest("Contact not found.");
 
-            contact.Name = request.Name;
-            contact.Surname = request.Surname;
-            contact.Company = request.Company;
-            contact.Phone = request.Phone;
-            contact.Email = request.Email;
-            contact.Country = request.Country;
+            dbContact.Name = request.Name;
+            dbContact.Surname = request.Surname;
+            dbContact.Company = request.Company;
+            dbContact.Phone = request.Phone;
+            dbContact.Email = request.Email;
+            dbContact.Country = request.Country;
 
-            return Ok(contact);
+            await _context.SaveChangesAsync();
+
+            return Ok(await _context.Contacts.ToListAsync());
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Contact>> Delete(int id)
         {
-            var contact = contacts.Find(c => c.Id == id);
-            if (contact == null)
+            var dbContact = await _context.Contacts.FindAsync(id);
+            if (dbContact == null)
                 return BadRequest("Contact not found.");
 
-            contacts.Remove(contact);
-            return Ok(contacts);
+            _context.Contacts.Remove(dbContact);
+            await _context.SaveChangesAsync();
+            return Ok(await _context.Contacts.ToListAsync());
         }
     }
 
