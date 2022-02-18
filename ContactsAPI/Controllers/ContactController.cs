@@ -11,19 +11,20 @@ namespace ContactsAPI.Controllers
 
         private readonly DataContext _context;
 
-        public ContactController(DataContext context)
+        public ContactController(DataContext context, ILogger<ContactController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Contact>>> Get()
+        public async Task<ActionResult<List<Contact>>> GetAllContactsAsync()
         {
             return Ok(await _context.Contacts.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Contact>> Get(int id)
+        public async Task<ActionResult<Contact>> GetContactAsync(int id)
         {
             var contact = await _context.Contacts.FindAsync(id);
             if (contact == null)
@@ -32,7 +33,7 @@ namespace ContactsAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Contact>>> AddContact(Contact contact)
+        public async Task<ActionResult<List<Contact>>> AddContactAsync(Contact contact)
         {
             _context.Contacts.Add(contact);
             await _context.SaveChangesAsync();
@@ -40,7 +41,7 @@ namespace ContactsAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateContact(Contact request)
+        public async Task<ActionResult> UpdateContactAsync(Contact request)
         {
             var dbContact = await _context.Contacts.FindAsync(request.Id);
             if (dbContact == null)
@@ -59,7 +60,7 @@ namespace ContactsAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Contact>> Delete(int id)
+        public async Task<ActionResult<Contact>> DeleteContactAsync(int id)
         {
             var dbContact = await _context.Contacts.FindAsync(id);
             if (dbContact == null)
