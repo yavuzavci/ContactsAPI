@@ -7,14 +7,11 @@ namespace ContactsAPI.Controllers
     [ApiController]
     public class ContactController : ControllerBase
     {
-        private readonly ILogger<ContactController> _logger;
-
         private readonly DataContext _context;
 
-        public ContactController(DataContext context, ILogger<ContactController> logger)
+        public ContactController(DataContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         [HttpGet]
