@@ -1,5 +1,7 @@
 <h1>Contacts Web API</h1>
 
+<span style="font-size:10pt">19-02-2022 Update: Unit tests are added.</span>
+
 <p style="font:italic;"> This project is a simple Contacts app as a Web API integrated with
 local PostgreSQL database using SwaggerUI as test interface.<b>.NET 6.0</b> is used in this 
 project.
