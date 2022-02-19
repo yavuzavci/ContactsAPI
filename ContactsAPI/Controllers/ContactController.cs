@@ -14,13 +14,13 @@ namespace ContactsAPI.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("/GetAllContacts")]
         public async Task<ActionResult<List<Contact>>> GetAllContactsAsync()
         {
             return Ok(await _context.Contacts.ToListAsync());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("/GetContact/{id}")]
         public async Task<ActionResult<Contact>> GetContactAsync(int id)
         {
             var contact = await _context.Contacts.FindAsync(id);
@@ -29,7 +29,7 @@ namespace ContactsAPI.Controllers
             return Ok(contact);
         }
 
-        [HttpPost]
+        [HttpPost("/AddContact")]
         public async Task<ActionResult<List<Contact>>> AddContactAsync(Contact contact)
         {
             _context.Contacts.Add(contact);
@@ -37,7 +37,7 @@ namespace ContactsAPI.Controllers
             return Ok(await _context.Contacts.ToListAsync());
         }
 
-        [HttpPut]
+        [HttpPut("/UpdateContact")]
         public async Task<ActionResult> UpdateContactAsync(Contact request)
         {
             var dbContact = await _context.Contacts.FindAsync(request.Id);
@@ -56,7 +56,7 @@ namespace ContactsAPI.Controllers
             return Ok(await _context.Contacts.ToListAsync());
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("/DeleteContact/{id}")]
         public async Task<ActionResult<Contact>> DeleteContactAsync(int id)
         {
             var dbContact = await _context.Contacts.FindAsync(id);
@@ -66,6 +66,24 @@ namespace ContactsAPI.Controllers
             _context.Contacts.Remove(dbContact);
             await _context.SaveChangesAsync();
             return Ok(await _context.Contacts.ToListAsync());
+        }
+
+        [HttpGet("/ReportContactsByCountry")]
+        public async Task<ActionResult> ReportContactsByCountry()
+        {
+            var contacts = await _context.Contacts.ToListAsync();
+
+            if (contacts.Count == 0) return NotFound("Report failed: No contacts to report.");
+
+            var countryDict = new Dictionary<String, int>();
+            foreach (var contact in contacts)
+            {
+                if (!countryDict.ContainsKey(contact.Country)) countryDict.Add(contact.Country, 1);                
+
+                else countryDict[contact.Country]++;
+            }            
+
+            return Ok(countryDict.OrderByDescending(c => c.Value).ToDictionary(c => c.Key, c => c.Value));
         }
     }
 

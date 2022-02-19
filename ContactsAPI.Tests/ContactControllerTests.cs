@@ -56,7 +56,7 @@ namespace ContactsAPI.Tests
 
             var result = await controller.GetContactAsync(id);  
             
-            Assert.IsType<BadRequestResult>(result);
+            Assert.IsType<BadRequestObjectResult>(result.Result);
         }
 
         [Fact]
@@ -90,6 +90,37 @@ namespace ContactsAPI.Tests
             var result = await controller.GetAllContactsAsync();
 
             Assert.IsType<OkObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task ReportContactsByCountry_WithNoItems_ReturnsNotFoundObject()
+        {
+            DbContextOptionsBuilder<DataContext> optionsBuilder = new();
+            optionsBuilder.UseNpgsql(_conn);
+
+            using var context = new DataContext(optionsBuilder.Options);
+            context.Database.EnsureCreated();
+
+            var controller = new ContactController(context);
+
+            var result = await controller.ReportContactsByCountry();
+
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+        [Fact]
+        public async Task ReportContactsByCountry_WithItems_ReturnsOkObject()
+        {
+            DbContextOptionsBuilder<DataContext> optionsBuilder = new();
+            optionsBuilder.UseNpgsql(_conn);
+
+            using var context = new DataContext(optionsBuilder.Options);
+            context.Database.EnsureCreated();
+
+            var controller = new ContactController(context);
+
+            var result = await controller.ReportContactsByCountry();
+
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
